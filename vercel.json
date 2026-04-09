@@ -1,0 +1,24 @@
+{
+  "builds": [
+    {
+      "src": "api_server.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "api_server.py"
+    }
+  ],
+  "env": {
+    "PIP_REQUIREMENT_FILE": "requirements-vercel.txt"
+  }
+}

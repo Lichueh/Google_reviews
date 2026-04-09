@@ -14,7 +14,9 @@ API_HOST = "0.0.0.0"
 # Data storage
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "results")
-DB_PATH  = os.path.join(BASE_DIR, "reviews.db")
+# Vercel's filesystem is read-only; use /tmp for the database
+IS_VERCEL = os.environ.get("VERCEL", False)
+DB_PATH  = "/tmp/reviews.db" if IS_VERCEL else os.path.join(BASE_DIR, "reviews.db")
 
 # Selenium config
 HEADLESS = False

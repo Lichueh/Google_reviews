@@ -21,13 +21,19 @@ import config
 from scraper.analyzer import analyze_place
 from scraper.db import get_place_data, import_json_files, init_db, list_places, upsert_place
 from nlp.pipeline import get_pipeline, clear_cache
-from scraper.google_maps_scraper import GoogleMapsScraper
-from scraper.data_manager import (
-    build_fingerprint_set,
-    load_latest_for_place,
-    merge_reviews,
-    save_reviews,
-)
+
+# Scraper imports — optional (unavailable on Vercel where Selenium is not installed)
+try:
+    from scraper.google_maps_scraper import GoogleMapsScraper
+    from scraper.data_manager import (
+        build_fingerprint_set,
+        load_latest_for_place,
+        merge_reviews,
+        save_reviews,
+    )
+    _SCRAPER_AVAILABLE = True
+except ImportError:
+    _SCRAPER_AVAILABLE = False
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -189,6 +195,8 @@ def scrape_search():
       "update": bool      (optional, default false — skip already-known reviews)
     }
     """
+    if not _SCRAPER_AVAILABLE:
+        return jsonify({"error": "Scraping is not available in this deployment"}), 503
     body = request.get_json(silent=True) or {}
     place_name = body.get("place_name", "").strip()
     if not place_name:
@@ -216,6 +224,8 @@ def scrape_url():
       "update": bool       (optional, default false)
     }
     """
+    if not _SCRAPER_AVAILABLE:
+        return jsonify({"error": "Scraping is not available in this deployment"}), 503
     body = request.get_json(silent=True) or {}
     url = body.get("url", "").strip()
     if not url:
