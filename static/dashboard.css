@@ -1,0 +1,176 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f6fa;
+  color: #333;
+}
+
+header {
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+header h1 { font-size: 1.3rem; font-weight: 600; color: #1a73e8; }
+
+#file-select {
+  padding: 8px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #fff;
+  cursor: pointer;
+  min-width: 280px;
+}
+
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+/* ── Place header ── */
+.place-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 14px 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #222;
+  gap: 6px;
+}
+
+/* ── Stats cards ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  text-align: center;
+}
+
+.stat-card .label { font-size: 0.8rem; color: #666; margin-bottom: 8px; }
+.stat-card .value { font-size: 2rem; font-weight: 700; }
+.stat-card.alert  .value { color: #d93025; }
+.stat-card.warn   .value { color: #f59e0b; }
+.stat-card.good   .value { color: #1a73e8; }
+
+/* ── Chart ── */
+.chart-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  margin-bottom: 24px;
+}
+
+.chart-card h2 { font-size: 1rem; margin-bottom: 16px; color: #555; }
+
+/* ── Filter tabs ── */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  padding: 8px 18px;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all .15s;
+}
+
+.tab-btn.active {
+  background: #1a73e8;
+  color: #fff;
+  border-color: #1a73e8;
+}
+
+/* ── Review cards ── */
+.review-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  margin-bottom: 12px;
+  border-left: 4px solid transparent;
+}
+
+.review-card.alert   { border-left-color: #d93025; }
+.review-card.warn    { border-left-color: #f59e0b; }
+.review-card.positive { border-left-color: #34a853; }
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.reviewer-name { font-weight: 600; }
+.stars { color: #fbbc04; letter-spacing: 1px; }
+.review-date { font-size: 0.8rem; color: #888; margin-left: auto; }
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tag.alert         { background: #fce8e6; color: #d93025; }
+.tag.needs-response { background: #fef3c7; color: #b45309; }
+.tag.positive      { background: #e6f4ea; color: #137333; }
+.tag.neutral       { background: #e8eaed; color: #555; }
+.tag.negative      { background: #fce8e6; color: #d93025; }
+
+.review-text { font-size: 0.9rem; color: #444; line-height: 1.6; margin: 8px 0; }
+
+.response-toggle {
+  font-size: 0.82rem;
+  color: #1a73e8;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+}
+
+.response-box {
+  display: none;
+  margin-top: 10px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.6;
+  border: 1px solid #e0e0e0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  color: #999;
+}
+
+@media (max-width: 700px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  header { flex-wrap: wrap; }
+}

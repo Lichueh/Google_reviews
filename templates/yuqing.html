@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>輿情分析系統 — 語意網絡</title>
+  <link rel="stylesheet" href="/static/yuqing.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>輿情分析系統</h1>
+  <div class="venue-checks" id="venue-checks"></div>
+  <a href="/" style="margin-left:auto">回到評論管控</a>
+</header>
+
+<main>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="collocation">Collocation 分析</button>
+    <button class="tab-btn" data-tab="network">語意網絡</button>
+    <button class="tab-btn" data-tab="kwic">Concordance (KWIC)</button>
+    <button class="tab-btn" data-tab="compare">跨場館比較</button>
+    <button class="tab-btn" data-tab="netcompare">語意網絡比較</button>
+  </div>
+
+  <!-- ═══════════ Tab 1: Collocation ═══════════ -->
+  <div class="tab-content active" id="tab-collocation">
+    <div class="param-panel">
+      <div class="param-group">
+        <label>共現窗口 (Window)</label>
+        <select id="param-window">
+          <option value="2">±2</option>
+          <option value="3">±3</option>
+          <option value="5" selected>±5</option>
+          <option value="sentence">句內</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <label>關聯指標 (Measure)</label>
+        <select id="param-measure">
+          <option value="llr" selected>Log-Likelihood Ratio</option>
+          <option value="pmi">PMI</option>
+          <option value="tscore">t-score</option>
+          <option value="chi_squared">Chi-squared</option>
+          <option value="dice">Dice</option>
+        </select>
+      </div>
+      <div class="param-group">
+        <label>最低共現次數</label>
+        <input type="range" id="param-min-freq" min="1" max="20" value="3" step="1">
+        <span class="range-val" id="val-min-freq">3</span>
+      </div>
+      <div class="param-group">
+        <label>最低分數閾值</label>
+        <input type="range" id="param-min-score" min="0" max="50" value="0" step="0.5">
+        <span class="range-val" id="val-min-score">0</span>
+      </div>
+      <div class="param-group">
+        <label>顯示數量 (Top N)</label>
+        <input type="range" id="param-top-n" min="20" max="200" value="100" step="10">
+        <span class="range-val" id="val-top-n">100</span>
+      </div>
+      <button class="btn btn-primary" id="btn-collocation" disabled>分析搭配詞</button>
+    </div>
+
+    <div id="coll-stats" class="stats-grid" style="display:none"></div>
+    <div class="card" id="coll-result" style="display:none">
+      <h3>搭配詞結果 <span id="coll-count" style="font-weight:400;color:#888"></span></h3>
+      <div style="max-height:500px;overflow-y:auto">
+        <table class="coll-table">
+          <thead>
+            <tr>
+              <th data-sort="rank">#</th>
+              <th data-sort="w1">詞1</th>
+              <th data-sort="w2">詞2</th>
+              <th data-sort="freq">共現次數</th>
+              <th data-sort="score">分數</th>
+            </tr>
+          </thead>
+          <tbody id="coll-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ Tab 2: Network ═══════════ -->
+  <div class="tab-content" id="tab-network">
+    <div class="param-panel">
+      <span style="font-size:0.85rem;color:var(--text-secondary)">使用上方 Collocation 參數建構網絡</span>
+      <button class="btn btn-primary" id="btn-network" disabled>生成網絡</button>
+      <button class="btn btn-secondary" id="btn-export-png">匯出 PNG</button>
+    </div>
+    <div class="network-container">
+      <div class="network-graph" id="network-graph">
+        <div class="empty-msg">選擇場館後點擊「生成網絡」</div>
+      </div>
+      <div class="network-sidebar">
+        <div class="card">
+          <h3>網絡指標</h3>
+          <ul class="metric-list" id="network-metrics">
+            <li><span class="label">節點數</span><span class="val" id="m-nodes">—</span></li>
+            <li><span class="label">邊數</span><span class="val" id="m-edges">—</span></li>
+            <li><span class="label">密度</span><span class="val" id="m-density">—</span></li>
+            <li><span class="label">平均群集係數</span><span class="val" id="m-clustering">—</span></li>
+            <li><span class="label">連通分量</span><span class="val" id="m-components">—</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Degree 中心性 Top 10</h3>
+          <ol class="centrality-list" id="top-degree"></ol>
+        </div>
+        <div class="card">
+          <h3>Betweenness 中心性 Top 10</h3>
+          <ol class="centrality-list" id="top-betweenness"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ Tab 3: KWIC ═══════════ -->
+  <div class="tab-content" id="tab-kwic">
+    <div class="card">
+      <h3>Concordance 搜尋</h3>
+      <div class="conc-inputs">
+        <div class="conc-field">
+          <label>詞組 1</label>
+          <input type="text" id="conc-term1" class="conc-input" placeholder="例：座位">
+        </div>
+        <div class="conc-sep">&</div>
+        <div class="conc-field">
+          <label>詞組 2</label>
+          <input type="text" id="conc-term2" class="conc-input" placeholder="例：視野">
+        </div>
+      </div>
+      <div class="conc-window-row">
+        <label>前後範圍</label>
+        <input type="range" id="conc-window" min="20" max="300" value="80" step="10">
+        <span class="conc-window-val"><span id="conc-window-val">80</span> 字元</span>
+      </div>
+      <p class="conc-hint">找出同時包含兩個詞組的語境，滑桿控制每個詞前後顯示的字元數。只輸入詞組 1 可做單詞搜尋。</p>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-primary" id="btn-kwic" disabled>搜尋共現</button>
+        <button class="btn btn-secondary" id="btn-pos-analysis" disabled>POS 搭配分析</button>
+      </div>
+      <div class="kwic-presets" id="kwic-presets" style="margin-top:12px">
+        <span style="font-size:0.8rem;color:var(--text-secondary);margin-right:4px">建議詞：</span>
+      </div>
+      <div id="kwic-result" style="margin-top:16px"></div>
+    </div>
+    <div class="card" id="pos-result" style="display:none">
+      <h3>POS 搭配分析：<span id="pos-keyword"></span></h3>
+      <div class="pos-chart-container" id="pos-charts"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ Tab 5: Net Compare ═══════════ -->
+  <div class="tab-content" id="tab-netcompare">
+    <div class="param-panel">
+      <div class="param-group">
+        <label>比較維度</label>
+        <select id="nc-type">
+          <option value="measure">不同關聯指標</option>
+          <option value="window">不同窗口大小</option>
+          <option value="threshold">不同閾值設定</option>
+        </select>
+      </div>
+      <span style="font-size:0.82rem;color:var(--text-secondary)">將以目前選取場館建構三個語意網絡進行系統性比較</span>
+      <button class="btn btn-primary" id="btn-netcompare" disabled>生成比較</button>
+    </div>
+    <div id="nc-config-preview"></div>
+    <div id="nc-result"></div>
+  </div>
+
+  <!-- ═══════════ Tab 4: Compare ═══════════ -->
+  <div class="tab-content" id="tab-compare">
+    <div class="param-panel">
+      <span style="font-size:0.85rem;color:var(--text-secondary)">選擇 2-3 個場館進行比較（使用Collocation 分析參數）</span>
+      <button class="btn btn-primary" id="btn-compare" disabled>開始比較</button>
+    </div>
+    <div id="compare-result"></div>
+  </div>
+</main>
+
+<script src="/static/yuqing.js"></script>
+</body>
+</html>

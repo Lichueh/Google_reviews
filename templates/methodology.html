@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>方法論說明 — 三巨蛋 Google Reviews 輿情分析</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: #f0faf4;
+      color: #222;
+      line-height: 1.75;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .site-title { font-size: 1rem; font-weight: 700; color: #1a73e8; white-space: nowrap; }
+    nav a { font-size: 0.85rem; color: #555; text-decoration: none; }
+    nav a:hover { color: #1a73e8; }
+    nav .sep { color: #ccc; }
+
+    /* ── Layout ── */
+    .page { display: flex; max-width: 1200px; margin: 0 auto; padding: 32px 16px; gap: 32px; }
+
+    /* ── Sidebar TOC ── */
+    aside {
+      width: 220px;
+      flex-shrink: 0;
+    }
+    .toc {
+      position: sticky;
+      top: 70px;
+      max-height: calc(100vh - 90px);
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      font-size: 0.82rem;
+    }
+    .toc h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: .06em; color: #999; margin-bottom: 12px; }
+    .toc ol { list-style: none; padding: 0; }
+    .toc li { margin: 6px 0; }
+    .toc a { color: #444; text-decoration: none; display: block; padding: 3px 6px; border-radius: 4px; transition: background .15s; }
+    .toc a:hover { background: #f0f4ff; color: #1a73e8; }
+    .toc .sub { padding-left: 14px; }
+
+    /* ── Main content ── */
+    main { flex: 1; min-width: 0; }
+
+    .page-header {
+      background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+      border-radius: 14px;
+      padding: 36px 40px;
+      color: #fff;
+      margin-bottom: 32px;
+    }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+    .page-header p { font-size: 0.9rem; opacity: .85; }
+
+    /* ── Section cards ── */
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: #e8f0fe;
+      color: #1a73e8;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .section-label.green  { background: #e6f4ea; color: #137333; }
+    .section-label.amber  { background: #fef3c7; color: #92400e; }
+    .section-label.purple { background: #f3e8ff; color: #6b21a8; }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8f0fe;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a73e8;
+      margin: 24px 0 12px;
+    }
+    h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+      margin: 16px 0 8px;
+    }
+
+    p { margin-bottom: 12px; font-size: 0.93rem; color: #333; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Quote/callout ── */
+    .callout {
+      background: #f8f9ff;
+      border-left: 4px solid #1a73e8;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .callout.amber { border-color: #f59e0b; background: #fffbeb; }
+    .callout.green { border-color: #34a853; background: #f0fdf4; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+    thead tr { background: #1a73e8; color: #fff; }
+    thead th { padding: 10px 14px; text-align: left; font-weight: 600; }
+    tbody tr:nth-child(even) { background: #f8f9ff; }
+    tbody td { padding: 9px 14px; border-bottom: 1px solid #eef0f5; vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    table code { background: #e8eaed; padding: 1px 5px; border-radius: 3px; font-size: 0.83em; }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-size: 0.83rem;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.6;
+    }
+    code { font-family: "JetBrains Mono", "Fira Code", "Menlo", monospace; }
+    p code, li code {
+      background: #e8eaed;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      color: #c62828;
+    }
+
+    /* ── Lists ── */
+    ul, ol { padding-left: 22px; margin: 10px 0 14px; font-size: 0.9rem; color: #333; }
+    li { margin: 5px 0; }
+
+    /* ── Measure cards ── */
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .measure-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+    }
+    .measure-card .badge {
+      position: absolute;
+      top: 14px; right: 14px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .badge.recommended { background: #e6f4ea; color: #137333; }
+    .badge.caution     { background: #fef3c7; color: #92400e; }
+    .measure-card h4   { margin-top: 0; font-size: 0.95rem; color: #1a73e8; }
+    .measure-card .formula { margin: 10px 0; font-size: 0.88rem; min-height: 36px; }
+    .measure-card p    { font-size: 0.84rem; color: #555; margin: 6px 0 0; }
+
+    /* ── Threshold viz ── */
+    .threshold-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #f8f9ff;
+      margin: 8px 0;
+      font-size: 0.88rem;
+    }
+    .threshold-label {
+      font-weight: 600;
+      min-width: 120px;
+      color: #1a73e8;
+    }
+    .threshold-value {
+      background: #1a73e8;
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .threshold-desc { color: #444; }
+
+    /* ── Window viz ── */
+    .window-demo {
+      background: #1e1e2e;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0;
+      color: #cdd6f4;
+      font-family: monospace;
+      font-size: 0.88rem;
+    }
+    .window-demo .tok { display: inline-block; padding: 4px 10px; border-radius: 5px; margin: 2px; }
+    .tok-center  { background: #1a73e8; color: #fff; }
+    .tok-in      { background: #2d4a6b; color: #93c5fd; border: 1px solid #1a73e8; }
+    .tok-out     { background: #2a2a3e; color: #6b7280; }
+    .pair-list   { margin-top: 14px; color: #a6e3a1; font-size: 0.84rem; }
+
+    /* ── Footnotes ── */
+    .references {
+      font-size: 0.82rem;
+      color: #666;
+      border-top: 1px solid #eee;
+      padding-top: 16px;
+      margin-top: 24px;
+    }
+    .references p { margin: 4px 0; }
+
+    @media (max-width: 800px) {
+      .page { flex-direction: column; }
+      aside { width: 100%; }
+      .toc { position: static; }
+      .measure-grid { grid-template-columns: 1fr; }
+      .section { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="site-title">Google Reviews 分析平台</span>
+  <span class="sep">|</span>
+  <a href="/">首頁</a>
+  <a href="/dashboard">評論管控</a>
+  <a href="/yuqing">輿情分析</a>
+  <a href="/methodology" style="color:#1a73e8;font-weight:600">方法論</a>
+</nav>
+
+<div class="page">
+
+  <!-- TOC -->
+  <aside>
+    <div class="toc">
+      <h3>目錄</h3>
+      <ol>
+        <li><a href="#preprocessing">一、文本前處理</a></li>
+        <li class="sub"><a href="#tokenizer">斷詞工具</a></li>
+        <li class="sub"><a href="#dict">自訂詞典</a></li>
+        <li class="sub"><a href="#stopwords">停用詞</a></li>
+        <li class="sub"><a href="#normalization">詞彙標準化</a></li>
+        <li><a href="#collocation-def">二、Collocation 定義</a></li>
+        <li><a href="#window">三、Window 設定</a></li>
+        <li><a href="#measures">四、關聯指標</a></li>
+        <li><a href="#threshold">五、閾值設定</a></li>
+        <li><a href="#semantic-network">六、語意網絡的理論定位</a></li>
+        <li><a href="#findings">七、網絡分析觀察與詮釋</a></li>
+        <li class="sub"><a href="#findings-clusters">主題群集</a></li>
+        <li class="sub"><a href="#findings-sentiment">正負評價結構</a></li>
+        <li class="sub"><a href="#findings-centrality">高中心性關鍵詞</a></li>
+        <li class="sub"><a href="#findings-compare">跨場館比較</a></li>
+        <li class="sub"><a href="#findings-pos">POS 搭配深度分析</a></li>
+        <li class="sub"><a href="#sn-definition">概念定義與差異</a></li>
+        <li class="sub"><a href="#sn-limitations">共現網絡的限制</a></li>
+        <li class="sub"><a href="#sn-corrections">修正方向</a></li>
+        <li><a href="#references">參考文獻</a></li>
+      </ol>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main>
+
+    <div class="page-header">
+      <h1>方法論說明</h1>
+      <p>三巨蛋 Google Reviews 輿情分析 ── 斷詞、搭配詞指標與閾值設定之原則與工具說明</p>
+    </div>
+
+    <!-- ── 一、文本前處理 ── -->
+    <div class="section" id="preprocessing">
+      <div class="section-label green">前處理</div>
+      <h2>一、文本前處理（Preprocessing）</h2>
+
+      <h3 id="tokenizer">1.1 斷詞工具：jieba</h3>
+      <p>本研究採用 <strong>jieba</strong> 套件進行中文斷詞，使用 <code>jieba.cut(text, cut_all=False)</code> 精確模式，並透過 <code>jieba.posseg</code> 進行詞性標註（用於 KWIC POS 搭配分析）。</p>
+
+      <div class="callout">
+        選擇 jieba 的理由：（1）繁體中文斷詞品質已足夠本研究使用；（2）支援 <code>jieba.load_userdict()</code> 自訂詞典；（3）處理速度快（~1,000 則評論約 5–8 秒）；（4）原生 Python，易於整合。
+      </div>
+
+      <h3 id="dict">1.2 自訂詞典（User Dictionary）</h3>
+      <p>jieba 預設採用人民日報語料訓練的通用詞典，對場館、球賽、政治等領域複合詞切分不穩定：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>詞彙</th><th>jieba 預設切法</th><th>自訂詞典切法</th></tr></thead>
+          <tbody>
+            <tr><td>台北大巨蛋</td><td>台北／大／巨蛋</td><td>台北大巨蛋 ✓</td></tr>
+            <tr><td>漢神巨蛋</td><td>漢／神／巨蛋</td><td>漢神巨蛋 ✓</td></tr>
+            <tr><td>五月天</td><td>五月／天</td><td>五月天 ✓</td></tr>
+            <tr><td>動線規劃</td><td>動／線／規劃</td><td>動線規劃 ✓</td></tr>
+            <tr><td>逃生動線</td><td>逃生／動／線</td><td>逃生動線 ✓</td></tr>
+            <tr><td>大螢幕</td><td>大／螢幕</td><td>大螢幕 ✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>詞典（<code>nlp/venue_dict.txt</code>）共 <strong>76 組詞條</strong>，分兩階段建立：</p>
+      <ul>
+        <li><strong>先驗式</strong>：依領域知識預先納入場館名、政治人物、設施術語</li>
+        <li><strong>資料驅動式</strong>：對三巨蛋 3,018 則評論進行高頻詞統計，找出出現 ≥ 15 次且可能被誤切的複合詞，補入詞典</li>
+      </ul>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>類別</th><th>範例</th><th>納入理由</th></tr></thead>
+          <tbody>
+            <tr><td>場館名稱</td><td>大巨蛋、小巨蛋、漢神巨蛋、國父紀念館</td><td>複合地名；jieba 易拆分</td></tr>
+            <tr><td>政治／企業</td><td>遠雄、柯文哲、BOT</td><td>大巨蛋評論高頻爭議詞彙</td></tr>
+            <tr><td>場館設施</td><td>搖滾區、動線規劃、大螢幕、逃生動線</td><td>設施複合詞；評論分析核心詞彙</td></tr>
+            <tr><td>活動類型</td><td>演唱會、職棒、球賽、頒獎典禮</td><td>場館使用情境分類所需</td></tr>
+            <tr><td>人物／表演者</td><td>江蕙、五月天、蔡依林、張學友</td><td>評論高頻演出者（五月天出現 29 次）</td></tr>
+            <tr><td>交通</td><td>捷運站</td><td>高頻且易誤切（捷運／站）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="stopwords">1.3 停用詞（Stopword Removal）</h3>
+      <p>文法功能詞（助詞、代詞、連詞）出現頻率極高，若不移除將主導搭配詞排名，掩蓋有意義的詞彙關係。本研究自建停用詞表（<code>nlp/stopwords.py</code>，488+ 詞條），而非使用現成詞表（如 HIT 哈工大版），原因是現有詞表多為簡體中文，且未針對線上評論語言設計。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>類別</th><th>範例</th><th>移除理由</th></tr></thead>
+          <tbody>
+            <tr><td>文法功能詞</td><td>的、了、著、和、但是、在、被、我、你</td><td>無主題語意，出現頻率過高會扭曲統計</td></tr>
+            <tr><td>常見副詞</td><td>很、太、非常、也、都、就</td><td>評價副詞頻率高但對搭配詞分析貢獻低</td></tr>
+            <tr><td>數詞／量詞</td><td>一至十、個、次、件</td><td>純量詞無語意分析價值</td></tr>
+            <tr><td>評論平台特有詞</td><td>星、評論、留言、月前、年前、Google</td><td>Google Maps 介面產生的固定文字，非評論內容</td></tr>
+            <tr><td>常見英文停用詞</td><td>the, is, it, and</td><td>中英夾雜評論中的英文功能詞</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="normalization">1.4 詞彙標準化（Normalization）</h3>
+      <div class="callout green">斷詞前清理（<code>segmenter.py: _clean_text()</code>）</div>
+      <ul>
+        <li>移除 URL（<code>https?://\S+</code>）</li>
+        <li>移除 emoji（Unicode emoji 區塊，共 8 個區段）</li>
+        <li>合併連續空白為單一空白</li>
+      </ul>
+      <div class="callout amber">斷詞後過濾（<code>stopwords.py: filter_tokens()</code>）</div>
+      <ul>
+        <li>過濾長度 &lt; 2 的 token（單字無法構成有意義搭配）</li>
+        <li>過濾純數字（日期、數量不具分析價值）</li>
+        <li>過濾停用詞表中的詞彙</li>
+        <li>過濾純英文單字（避免英文碎片污染中文搭配分析）</li>
+      </ul>
+    </div>
+
+    <!-- ── 二、Collocation 定義 ── -->
+    <div class="section" id="collocation-def">
+      <div class="section-label">搭配詞理論</div>
+      <h2>二、Collocation 定義與操作化</h2>
+
+      <h3>2.1 詞彙共現關係的定義</h3>
+      <p><strong>搭配詞（Collocation）</strong>指兩個詞彙在語料中以「高於隨機預期的頻率」共同出現的現象（Firth, 1957）。其核心主張來自<strong>分佈假說</strong>（Distributional Hypothesis, Harris, 1954）：語意相關的詞彙，傾向出現在相似的語境中。</p>
+
+      <div class="callout">"You shall know a word by the company it keeps." — Firth (1957)</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>偶發共現</th><th>搭配詞</th></tr></thead>
+          <tbody>
+            <tr><td><strong>出現模式</strong></td><td>隨機、偶然</td><td>系統性、可重複</td></tr>
+            <tr><td><strong>統計特性</strong></td><td>頻率接近隨機預期</td><td>頻率顯著高於隨機預期</td></tr>
+            <tr><td><strong>例子</strong></td><td>「巨蛋」+「但是」</td><td>「巨蛋」+「演唱會」</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.2 操作化為可計算單位（三個決策）</h3>
+
+      <h4>（1）計算單位：有序詞對</h4>
+      <p>以有序對 <code>(w1, w2)</code>（字典序 w1 ≤ w2）為基本計算單位，避免方向重複計算。每個詞對的<strong>共現次數</strong> \(f(w_1, w_2)\) 定義為：在整個語料中，\(w_1\) 與 \(w_2\) 在窗口內同時出現的次數，以單則評論為邊界，不跨評論累加。</p>
+
+      <h4>（2）文件邊界：單則評論</h4>
+      <p>Google Reviews 中每則評論語意自成一體。強制跨評論計算共現會引入無意義的詞彙關聯（不同評論者的詞彙恰好相近，並非真正搭配）。</p>
+
+      <h4>（3）實作對應</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>概念</th><th>實作</th><th>程式碼位置</th></tr></thead>
+          <tbody>
+            <tr><td>詞對計算</td><td>有序對 (w1, w2)，字典序</td><td><code>nlp/collocation.py: CollocationAnalyzer</code></td></tr>
+            <tr><td>滑動窗口</td><td>±2 / ±3 / ±5 token，或句內</td><td><code>CollocationAnalyzer.__init__(window=)</code></td></tr>
+            <tr><td>文件邊界</td><td>每則評論獨立計算</td><td><code>pipeline.py: tokens</code> property</td></tr>
+            <tr><td>停用詞過濾</td><td>斷詞後移除停用詞再計算</td><td><code>stopwords.py: filter_tokens()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── 三、Window ── -->
+    <div class="section" id="window">
+      <div class="section-label amber">窗口設定</div>
+      <h2>三、共現窗口設定（Co-occurrence Window）</h2>
+
+      <h3>3.1 窗口類型：對稱滑動窗口</h3>
+      <p>本研究採用<strong>對稱滑動窗口（symmetric sliding window）</strong>：以語料中每個 token \(w_i\) 為中心，向右掃描至多 \(k\) 個位置，記錄所有距離 \(\leq k\) 的詞對。</p>
+
+      <p>$$\text{共現}: w_i \text{ 與 } w_j \text{ 共現} \iff |i - j| \leq k, \; w_i \neq w_j$$</p>
+
+      <p>實作上使用有序對＋向前計算（<code>collocation.py</code> L48–53）避免雙重計數，效果等同傳統 ±k 對稱窗口。</p>
+
+      <h4>示意：「音響效果很棒」在 ±2 窗口下</h4>
+      <div class="window-demo">
+        <div>
+          位置：&nbsp;
+          <span class="tok tok-center">音響 (0)</span>
+          <span class="tok tok-in">效果 (1)</span>
+          <span class="tok tok-in">很 (2)</span>
+          <span class="tok tok-out">棒 (3)</span>
+        </div>
+        <div style="margin-top:10px">
+          位置：&nbsp;
+          <span class="tok tok-out">音響 (0)</span>
+          <span class="tok tok-center">效果 (1)</span>
+          <span class="tok tok-in">很 (2)</span>
+          <span class="tok tok-in">棒 (3)</span>
+        </div>
+        <div class="pair-list">
+          記錄到的詞對（以中心詞向右看）：<br>
+          音響-效果（距離1）　音響-很（距離2）<br>
+          效果-很（距離1）　　效果-棒（距離2）<br>
+          很-棒（距離1）
+        </div>
+      </div>
+
+      <h3>3.2 滑動窗口 vs. 句子分塊</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>滑動窗口（本研究）</th><th>句子分塊</th></tr></thead>
+          <tbody>
+            <tr><td><strong>邊界</strong></td><td>token 距離限制（≤ k）</td><td>句子邊界（。！？\n）</td></tr>
+            <tr><td><strong>距離效應</strong></td><td>遠距詞對累積次數較少</td><td>同句所有詞對機會均等</td></tr>
+            <tr><td><strong>適用</strong></td><td>局部搭配（語法與短程語意）</td><td>主題共現（長程語意）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.3 文獻對窗口大小的建議</h3>
+      <ul>
+        <li><strong>Church & Hanks (1990)</strong>：提出 PMI 時使用 ±5 窗口，成為後續研究的基準設定</li>
+        <li><strong>Sinclair (1991)</strong>：建議每側 4 個詞（≈ ±4），涵蓋大多數語法與語意搭配</li>
+        <li><strong>Evert (2008)</strong>：±2–5 對搭配詞偵測最有效；窗口 >10 引入過多非搭配性共現</li>
+        <li><strong>Levy & Goldberg (2014)</strong>：小窗口（±2）偏向語法關係；大窗口（±5–10）偏向語意／主題關係</li>
+      </ul>
+
+      <h3>3.4 本研究窗口設定</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>窗口</th><th>定義</th><th>偏向捕捉的關係</th><th>本研究角色</th></tr></thead>
+          <tbody>
+            <tr><td><code>±2</code></td><td>前後各 2 token</td><td>緊鄰語法搭配</td><td>比較用</td></tr>
+            <tr><td><code>±3</code></td><td>前後各 3 token</td><td>短程搭配</td><td>比較用</td></tr>
+            <tr><td><code>±5</code></td><td>前後各 5 token</td><td>語法與語意兼顧</td><td><strong>預設</strong></td></tr>
+            <tr><td><code>句內</code></td><td>同句所有詞對</td><td>主題層次共現</td><td>比較用</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>選擇 ±5 的三個理由：</strong><br>
+        （1）文獻支持：±5 為計算語言學文獻最常見預設值（Church & Hanks, 1990; Manning & Schütze, 1999）<br>
+        （2）語料特性：Google Reviews 評論斷詞後約 10–20 個有效 token，±5 涵蓋約一半，足以捕捉同一子句乃至相鄰子句的搭配<br>
+        （3）研究目的：目標是語意層次搭配（如「座位＋視野」「演唱會＋音響」），需比 ±2 更寬的窗口
+      </div>
+    </div>
+
+    <!-- ── 四、關聯指標 ── -->
+    <div class="section" id="measures">
+      <div class="section-label purple">關聯指標</div>
+      <h2>四、關聯指標（Association Measures）</h2>
+
+      <h3>4.1 2×2 列聯表（共用符號）</h3>
+      <p>設語料總 token 數為 \(N\)，所有指標共用以下符號：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>\(w_2\) 出現</th><th>\(w_2\) 不出現</th><th>列合計</th></tr></thead>
+          <tbody>
+            <tr><td><strong>\(w_1\) 出現</strong></td><td>\(O_{11} = f(w_1,w_2)\)</td><td>\(O_{12}\)</td><td>\(R_1 = f(w_1)\)</td></tr>
+            <tr><td><strong>\(w_1\) 不出現</strong></td><td>\(O_{21}\)</td><td>\(O_{22}\)</td><td>\(R_2\)</td></tr>
+            <tr><td><strong>欄合計</strong></td><td>\(C_1 = f(w_2)\)</td><td>\(C_2\)</td><td>\(N\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>期望值：\(E_{11} = \dfrac{R_1 \cdot C_1}{N} = \dfrac{f(w_1) \cdot f(w_2)}{N}\)</p>
+
+      <h3>4.2 五種指標</h3>
+      <div class="measure-grid">
+
+        <div class="measure-card">
+          <span class="badge caution">低頻偏差</span>
+          <h4>① PMI（Pointwise Mutual Information）</h4>
+          <div class="formula">
+            \[\text{PMI} = \log_2 \frac{P(w_1, w_2)}{P(w_1) \cdot P(w_2)} = \log_2 \frac{O_{11} \cdot N}{f(w_1) \cdot f(w_2)}\]
+          </div>
+          <p><strong>意涵：</strong>實際共現機率與獨立假設的比值（log 尺度）。PMI > 0 表示共現高於預期。</p>
+          <p><strong>限制：</strong>嚴重高估低頻詞對——各出現 1 次的詞恰好共現，PMI 會達最大值，但樣本不足以支撐。</p>
+        </div>
+
+        <div class="measure-card">
+          <span class="badge caution">高頻偏好</span>
+          <h4>② t-score</h4>
+          <div class="formula">
+            \[t = \frac{O_{11} - E_{11}}{\sqrt{O_{11}}}\]
+          </div>
+          <p><strong>意涵：</strong>觀察值與期望值之差以觀察值標準差標準化，類似 t 統計量。</p>
+          <p><strong>限制：</strong>偏好高頻詞對；假設接近常態分佈，對低頻詞對此假設不成立（Manning & Schütze, 1999）。</p>
+        </div>
+
+        <div class="measure-card">
+          <span class="badge caution">低頻不穩定</span>
+          <h4>③ Chi-squared（χ²）</h4>
+          <div class="formula">
+            \[\chi^2 = \frac{N(O_{11}O_{22} - O_{12}O_{21})^2}{R_1 R_2 C_1 C_2}\]
+          </div>
+          <p><strong>意涵：</strong>檢定 \(w_1\) 與 \(w_2\) 是否獨立分佈的卡方統計量。</p>
+          <p><strong>限制：</strong>當期望頻率 \(E_{ij} < 5\) 時近似失效，在小語料中對低頻詞對高估關聯強度（Manning & Schütze, 1999）。</p>
+        </div>
+
+        <div class="measure-card" style="border-color:#1a73e8">
+          <span class="badge recommended">本研究預設</span>
+          <h4>④ LLR（Log-Likelihood Ratio, G²）</h4>
+          <div class="formula">
+            \[G^2 = 2\sum_{i,j} O_{ij} \ln \frac{O_{ij}}{E_{ij}}\]
+          </div>
+          <p><strong>意涵：</strong>對數概似比檢定，比較「兩詞獨立」與「兩詞關聯」兩個模型的擬合優度。</p>
+          <p><strong>優勢：</strong>不假設常態分佈，不要求 \(E_{ij} \geq 5\)，對稀疏資料最穩健（Dunning, 1993; Manning & Schütze, 1999）。</p>
+        </div>
+
+        <div class="measure-card">
+          <h4>⑤ Dice Coefficient</h4>
+          <div class="formula">
+            \[\text{Dice} = \frac{2 \cdot f(w_1, w_2)}{f(w_1) + f(w_2)}\]
+          </div>
+          <p><strong>意涵：</strong>共現次數相對於兩詞總出現次數的比例，取值範圍 [0, 1]。</p>
+          <p><strong>限制：</strong>直覺易解讀，但不具統計假設檢定意義，無標準顯著性門檻。</p>
+        </div>
+
+      </div>
+
+      <h3>4.3 選擇 LLR 作為預設指標</h3>
+      <div class="callout">
+        <strong>1. 統計穩健性：</strong>語料規模約 3,000 則評論，許多詞對共現次數偏低，χ² 的大樣本假設不成立。LLR 不依賴常態近似，最適合此規模（Dunning, 1993）。<br><br>
+        <strong>2. 文獻建議：</strong>Manning & Schütze (1999, Ch. 5) 明確推薦 LLR 作為搭配詞分析的主要指標，尤其在語料規模受限時。<br><br>
+        <strong>3. 平衡性：</strong>對高頻詞對（如「演唱會＋座位」）與低頻但特定的詞對（如「遠雄＋BOT」）均有合理鑑別力，不偏向任一端。
+      </div>
+    </div>
+
+    <!-- ── 五、閾值 ── -->
+    <div class="section" id="threshold">
+      <div class="section-label green">閾值設定</div>
+      <h2>五、閾值設定（Threshold）</h2>
+
+      <p>搭配詞分析需透過閾值篩選機制，從大量詞對中保留統計上顯著的搭配，排除偶發共現的雜訊。本研究設有三層篩選：</p>
+
+      <h3>5.1 三層篩選機制</h3>
+
+      <h4>第一層：最低共現次數（min_freq）</h4>
+      <div class="threshold-row">
+        <span class="threshold-label">min_freq</span>
+        <span class="threshold-value">預設 = 3</span>
+        <span class="threshold-desc">在計算任何指標之前，先過濾 \(f(w_1,w_2) &lt; \text{min\_freq}\) 的詞對</span>
+      </div>
+      <p>當共現次數過低（如 1–2 次），所有指標估計均不穩定：LLR 的 \(E_{11}\) 趨近 0 造成 \(G^2\) 虛高；PMI 在兩詞各出現 1 次時達全語料上限但毫無意義。Manning & Schütze (1999) 建議至少 3–5 次才具最低可信度。在約 60,000 tokens 的語料下，min_freq = 3 可過濾大部分偶發詞對，同時保留罕見但有分析價值的詞彙（如人名、地名組合）。</p>
+
+      <h4>第二層：關聯指標分數門檻（min_score）</h4>
+      <div class="threshold-row">
+        <span class="threshold-label">min_score</span>
+        <span class="threshold-value">預設 = 0</span>
+        <span class="threshold-desc">不設下限，以 top_n 為主要篩選機制；若需統計顯著性保證，可依指標設門檻</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>指標</th><th>顯著性門檻參考</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>LLR（\(G^2\)）</td><td>≥ 3.84</td><td>對應 \(\chi^2(1)\) 在 \(p &lt; 0.05\) 的臨界值</td></tr>
+            <tr><td>\(\chi^2\)</td><td>≥ 3.84</td><td>同上</td></tr>
+            <tr><td>PMI</td><td>> 0</td><td>正值表示共現高於獨立預期</td></tr>
+            <tr><td>t-score</td><td>≥ 1.96</td><td>對應雙尾 \(p &lt; 0.05\)</td></tr>
+            <tr><td>Dice</td><td>無標準門檻</td><td>依研究需求自訂</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>第三層：顯示數量（top_n）</h4>
+      <div class="threshold-row">
+        <span class="threshold-label">top_n（搭配詞）</span>
+        <span class="threshold-value">預設 = 100</span>
+        <span class="threshold-desc">足以觀察完整詞彙關聯排序，供跨指標比較</span>
+      </div>
+      <div class="threshold-row">
+        <span class="threshold-label">top_n（語意網絡）</span>
+        <span class="threshold-value">預設 = 80</span>
+        <span class="threshold-desc">兼顧網絡可讀性與主題覆蓋度；>150 節點密集難讀，&lt;30 遺漏重要連結</span>
+      </div>
+
+      <h3>5.2 閾值對結果的影響</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>操作</th><th>對搭配詞列表</th><th>對語意網絡</th></tr></thead>
+          <tbody>
+            <tr><td>min_freq 3 → 5</td><td>移除低頻詞對，結果更穩健；可能遺漏罕見人名、事件名</td><td>節點數減少，網絡更稀疏，社群邊界更清晰</td></tr>
+            <tr><td>min_freq 3 → 1</td><td>保留所有詞對，包含大量偶發噪音</td><td>節點暴增，核心結構被邊緣詞彙淹沒</td></tr>
+            <tr><td>min_score 0 → 3.84</td><td>僅保留 LLR 統計顯著的詞對（\(p &lt; 0.05\)）</td><td>網絡大幅縮減，僅保留最可信的搭配邊</td></tr>
+            <tr><td>top_n 80 → 30</td><td>只顯示最強關聯，排除中等強度搭配</td><td>高度稀疏，僅呈現核心詞彙關係</td></tr>
+            <tr><td>top_n 80 → 150</td><td>納入更多中低強度搭配</td><td>密度提升，可見更多跨主題連結，但噪音增加</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── 六、語意網絡的理論定位 ── -->
+    <div class="section" id="semantic-network">
+      <div class="section-label purple">理論反思</div>
+      <h2>六、語意網絡的理論定位與方法反思</h2>
+
+      <p>本研究以「語意網絡」（semantic network）作為視覺化呈現詞彙關係的方式，但需釐清：<strong>以共現統計建構的詞彙網絡，並不等同於語言學或認知科學中嚴格定義的語意網絡</strong>。本節從理論與方法層面說明兩者之差異，並討論若要使網絡更接近「語意」層次，可能的修正路徑（Stefanowitsch, 2020）。</p>
+
+      <!-- 6.1 定義比較 -->
+      <h3 id="sn-definition">6.1 兩個概念的定義與差異</h3>
+
+      <p><strong>語意網絡（Semantic Network）</strong>在認知語言學與知識表徵理論中，指以節點表示概念、以有向邊表示概念間語意關係（如 IS-A、部分整體、因果、隸屬）的網絡結構（Collins & Quillian, 1969）。其邊具有明確的語意標籤，且能區分方向與關係類型。</p>
+
+      <p style="margin-top:12px"><strong>詞彙共現網絡（Collocation Co-occurrence Network）</strong>則以詞形（token/lemma）為節點，以統計共現強度（PMI、LLR 等）為邊權重，理論根基為 Harris（1954）的分佈假說與 Firth（1957）的語境意義觀：「詞的意義由其所出現的語境決定」（<em>you shall know a word by the company it keeps</em>）。</p>
+
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead>
+            <tr><th>面向</th><th>語意網絡（Semantic Network）</th><th>詞彙共現網絡（本研究）</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>理論基礎</td><td>認知語義學、知識表徵理論</td><td>分佈假說（Harris 1954；Firth 1957）</td></tr>
+            <tr><td>節點</td><td>概念（concept）</td><td>表面詞形（surface token）</td></tr>
+            <tr><td>邊的意義</td><td>明確語意關係（IS-A、CAUSE…）</td><td>統計共現強度（對稱、無標記）</td></tr>
+            <tr><td>方向性</td><td>有向（如「鳥 IS-A 動物」單向成立）</td><td>無向（共現對稱）</td></tr>
+            <tr><td>極性區分</td><td>能區分正面／負面評價</td><td>❌ 不能（「好」與「不好」共現同等計算）</td></tr>
+            <tr><td>語法角色</td><td>能區分施事／受事</td><td>❌ 不能（主語與賓語等同處理）</td></tr>
+            <tr><td>建構方式</td><td>人工標注或知識工程</td><td>自動統計（可大規模處理）</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6.2 限制說明 -->
+      <h3 id="sn-limitations" style="margin-top:28px">6.2 共現網絡在語意解釋上的具體限制</h3>
+
+      <p>Stefanowitsch（2020）提醒，語料庫語言學中的共現分析是對語言使用模式的統計描述，不直接等同於語意知識的表徵。以下是本研究語料中可能出現的三類誤讀情形：</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0">
+        <div style="background:#fff3f3;border-left:4px solid #ea4335;border-radius:8px;padding:14px">
+          <div style="font-size:0.72rem;font-weight:700;color:#c62828;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">問題 1：否定詞混入</div>
+          <p style="font-size:0.83rem;color:#333">「<strong>不</strong>方便」與「<strong>很</strong>方便」在窗口 ±5 內，「停車」與「方便」均會共現，無法區分評價方向。</p>
+        </div>
+        <div style="background:#fff8f0;border-left:4px solid #fbbc04;border-radius:8px;padding:14px">
+          <div style="font-size:0.72rem;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">問題 2：語法角色混淆</div>
+          <p style="font-size:0.83rem;color:#333">「<strong>座位</strong>讓我舒適」與「<strong>我</strong>找不到座位」中，「座位」的語義角色（主題 vs. 客體）無法區分。</p>
+        </div>
+        <div style="background:#f3f0ff;border-left:4px solid #7b1fa2;border-radius:8px;padding:14px">
+          <div style="font-size:0.72rem;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">問題 3：主題漂移共現</div>
+          <p style="font-size:0.83rem;color:#333">同場評論中「演唱會」與「停車」共現，可能只因同屬一則評論，而非語意上直接相關。</p>
+        </div>
+      </div>
+
+      <!-- 6.3 修正方向 -->
+      <h3 id="sn-corrections" style="margin-top:28px">6.3 使網絡更接近「語意」層次的修正方向</h3>
+
+      <p>若研究目標要求更嚴格的語意詮釋，可從以下四個方向強化（由易至難）：</p>
+
+      <div style="display:grid;gap:12px;margin-top:16px">
+
+        <div style="background:#e8f0fe;border-radius:10px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
+          <div style="background:#1a73e8;color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-top:2px">方向 1</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:6px;font-size:0.9rem">POS Filtering（詞性篩選）</div>
+            <p style="font-size:0.85rem;color:#333">僅保留<strong>名詞（n）、動詞（v）、形容詞（a）</strong>作為網絡節點，過濾介詞、代詞、助詞等功能詞。本研究已部分實作（停用詞表過濾），但仍可更嚴格地以詞性標記（jieba.posseg）篩選，減少語法功能詞對網絡結構的干擾。實作成本低，可直接在現有管線中加入。</p>
+          </div>
+        </div>
+
+        <div style="background:#e6f4ea;border-radius:10px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
+          <div style="background:#137333;color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-top:2px">方向 2</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:6px;font-size:0.9rem">Dependency Relation（句法依存關係）</div>
+            <p style="font-size:0.85rem;color:#333">以依存句法（dependency parsing）取代窗口共現，僅在具有句法關係的詞對間建立邊（如 <code>nsubj</code>：主語、<code>obj</code>：賓語、<code>amod</code>：形容詞修飾）。可使用 <strong>CKIP Tagger</strong>（繁體中文）或 <strong>spaCy + stanza</strong> 提取依存關係。此方式能排除同句但無句法關係的詞對，大幅提升邊的語意精確性（Stefanowitsch, 2020, Ch. 8）。</p>
+          </div>
+        </div>
+
+        <div style="background:#fef3c7;border-radius:10px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
+          <div style="background:#b45309;color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-top:2px">方向 3</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:6px;font-size:0.9rem">Edge Weighting by Semantic Similarity（語意相似度加權）</div>
+            <p style="font-size:0.85rem;color:#333">在共現統計之外，額外以<strong>詞向量相似度</strong>（word2vec、fastText 或 BERT 語境向量）對邊進行加權或篩選，使僅語意上真正接近的詞對才形成強連結。可結合現有 LLR 分數（統計顯著性）與 cosine 相似度（語意接近度）雙重過濾，兼顧統計穩健性與語意精確性（Levy & Goldberg, 2014）。</p>
+          </div>
+        </div>
+
+        <div style="background:#f3e8ff;border-radius:10px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
+          <div style="background:#6b21a8;color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-top:2px">方向 4</div>
+          <div>
+            <div style="font-weight:700;margin-bottom:6px;font-size:0.9rem">Semantic Role Labeling（語意角色區分）</div>
+            <p style="font-size:0.85rem;color:#333">最進階的方向：使用語意角色標記（SRL）將詞彙標記為施事（Agent）、受事（Patient）、工具（Instrument）、受益者（Beneficiary）等語意角色，使網絡邊具有方向性與語意類型標籤。以「座位視野不佳」為例，可識別「座位」為受事、「視野」為屬性、「不佳」為評價詞。目前繁體中文的 SRL 工具尚不成熟，實作門檻較高。</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 本研究的立場 -->
+      <div class="callout amber" style="margin-top:24px">
+        <strong>本研究的立場：</strong>本研究建構的是「詞彙共現網絡」，以分佈假說為理論基礎，以 LLR 統計顯著性為邊的篩選依據。「語意網絡」為通俗簡稱，嚴格而言應理解為<em>語意關係的統計近似</em>。在評論語料的主題識別與輿情分析目標下，此近似具有足夠的實用性；但解讀時應注意共現關係不等同於語意蘊涵，尤其在涉及情感極性與語法角色的詮釋上，需結合 KWIC 語境搜尋進行人工驗核（Stefanowitsch, 2020）。
+      </div>
+
+    </div>
+
+    <!-- ── 七、網絡分析觀察與詮釋 ── -->
+    <div class="section" id="findings">
+      <div class="section-label green">分析結果</div>
+      <h2>七、網絡分析觀察與詮釋</h2>
+
+      <p>本節基於三巨蛋語料（臺北大巨蛋 1,068 則、臺北小巨蛋 999 則、高雄巨蛋 992 則），以 LLR 為關聯指標、窗口 ±5、min_freq = 3、top_n = 80 之預設參數建構語意網絡，對評論語料提出具體觀察。</p>
+
+      <!-- 7.1 主題群集 -->
+      <h3 id="findings-clusters" style="margin-top:24px">7.1 主題群集（Topic Clusters）</h3>
+
+      <p>三座場館的網絡均呈現明確的<strong>主題群集結構</strong>，透過 Louvain 社群偵測演算法可自動劃分出 18–24 個社群。以臺北大巨蛋為例，以下為六大核心群集：</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">
+        <div style="background:#e8f0fe;border-radius:10px;padding:16px 18px">
+          <div style="font-weight:700;color:#1a73e8;margin-bottom:6px;font-size:0.88rem">群集 A — 場館初體驗</div>
+          <p style="font-size:0.83rem;color:#333">核心詞：<strong>大巨蛋、第一次、很棒、棒球、比賽、體驗、舒服</strong></p>
+          <p style="font-size:0.8rem;color:#666;margin-top:4px">語意解讀：反映大量首訪評論，「第一次」與「大巨蛋」共現次數高達 82 次（LLR 462.07），顯示場館啟用初期的「朝聖」效應。正面評價詞（很棒、舒服）與場館名共同聚類，說明初訪經驗普遍正面。</p>
+        </div>
+        <div style="background:#e6f4ea;border-radius:10px;padding:16px 18px">
+          <div style="font-weight:700;color:#137333;margin-bottom:6px;font-size:0.88rem">群集 B — 交通可及性</div>
+          <p style="font-size:0.83rem;color:#333">核心詞：<strong>捷運、交通、方便、國父紀念館、出口、便利、搭乘</strong></p>
+          <p style="font-size:0.8rem;color:#666;margin-top:4px">語意解讀：三組強搭配詞——「交通–方便」(449.28)、「國父紀念館–捷運」(422.38)、「捷運–方便」(279.38)——構成緊密的交通評價群集。「國父紀念館」做為地標而非文化機構出現，功能為指引方向。</p>
+        </div>
+        <div style="background:#fef3c7;border-radius:10px;padding:16px 18px">
+          <div style="font-weight:700;color:#b45309;margin-bottom:6px;font-size:0.88rem">群集 C — 場館設施</div>
+          <p style="font-size:0.83rem;color:#333">核心詞：<strong>冷氣、廁所、乾淨、座位、舒適、螢幕</strong></p>
+          <p style="font-size:0.8rem;color:#666;margin-top:4px">語意解讀：「冷氣」為大巨蛋 Degree 中心性最高的詞彙，形成兩組搭配：正面搭配「冷氣–舒服」(275.84) 與警訊搭配「冷氣–外套」(212.88)，後者暗示冷氣過強需帶外套。「廁所–很多」(288.93)、「廁所–乾淨」(288.42) 則為正面設施評價。「螢幕–太小」則為負面反映。</p>
+        </div>
+        <div style="background:#f3e8ff;border-radius:10px;padding:16px 18px">
+          <div style="font-weight:700;color:#6b21a8;margin-bottom:6px;font-size:0.88rem">群集 D — 演出與藝人</div>
+          <p style="font-size:0.83rem;color:#333">核心詞：<strong>演唱會、場地、五月天、周杰倫、蔡依林</strong></p>
+          <p style="font-size:0.8rem;color:#666;margin-top:4px">語意解讀：藝人名稱與「演唱會」共聚為獨立社群，反映評論中「因特定藝人而評論場館」的行為模式。「演唱會」為 Betweenness 中心性前列，說明其作為橋接演出體驗與場館設施評價的關鍵詞。</p>
+        </div>
+        <div style="background:#fff3f3;border-radius:10px;padding:16px 18px">
+          <div style="font-weight:700;color:#c62828;margin-bottom:6px;font-size:0.88rem">群集 E — 停車與動線</div>
+          <p style="font-size:0.83rem;color:#333">核心詞：<strong>停車場、地下、分鐘、步行、機車、汽車</strong></p>
+          <p style="font-size:0.8rem;color:#666;margin-top:4px">語意解讀：「停車場–分鐘」(222.37)、「停車場–地下」(209.45) 形成圍繞停車便利性的子群集。「分鐘–步行」(269.84) 則涉及場館周邊步行距離描述。此群集同時承載正面（地下停車場方便）與負面（步行距離遠）評價。</p>
+        </div>
+        <div style="background:#e0f2fe;border-radius:10px;padding:16px 18px">
+          <div style="font-weight:700;color:#0369a1;margin-bottom:6px;font-size:0.88rem">群集 F — 球隊與賽事</div>
+          <p style="font-size:0.83rem;color:#333">核心詞：<strong>中信、兄弟、內野、外野、草皮、人工</strong></p>
+          <p style="font-size:0.8rem;color:#666;margin-top:4px">語意解讀：棒球相關專有名詞自成群集，「中信–兄弟」(259.59) 為球隊名稱的固定搭配。「內野–外野」(227.81) 為座位區域詞彙，「草皮–人工」則涉及球場設施討論。此群集反映大巨蛋作為棒球場的使用特徵。</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>觀察小結：</strong>評論中確實存在明顯的主題群集結構，且各群集具備高度內聚性（群集內詞彙間共現強度遠高於群集間）。主題可歸納為：<strong>初訪體驗、交通可及性、場館設施、演出活動、停車動線、球隊賽事</strong>六大類，涵蓋場館評論的主要面向。
+      </div>
+
+      <!-- 7.2 正負評價結構 -->
+      <h3 id="findings-sentiment" style="margin-top:28px">7.2 正負評價的語意結構</h3>
+
+      <p>正面與負面評價在網絡中呈現不同的結構特徵：</p>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr><th>面向</th><th>正面搭配（正向共現）</th><th>負面搭配（警訊共現）</th><th>結構特徵</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600">冷氣</td>
+              <td>冷氣–舒服 (275.84)</td>
+              <td>冷氣–外套 (212.88)</td>
+              <td>同一設施詞同時連結正負評價詞，形成<strong>雙極結構</strong></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">座位</td>
+              <td>座位–舒適</td>
+              <td>螢幕–太小（同群）</td>
+              <td>正面為直接修飾；負面則透過觀賽體驗間接關聯</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">廁所</td>
+              <td>廁所–乾淨 (288.42)、廁所–很多 (288.93)</td>
+              <td>—</td>
+              <td>純正面群集，反映廁所整潔為高滿意度設施</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">交通</td>
+              <td>交通–方便 (449.28)、捷運–方便 (279.38)</td>
+              <td>—</td>
+              <td>正面搭配強度極高，交通被視為場館主要優勢</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">停車</td>
+              <td>停車場–地下 (209.45)</td>
+              <td>停車–（隱含負面）</td>
+              <td>停車相關評論正負混合，需結合 KWIC 語境判斷</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout amber" style="margin-top:16px">
+        <strong>關鍵發現：</strong>正面評價傾向以<strong>直接修飾結構</strong>出現（「交通方便」「廁所乾淨」「座位舒適」），形成短路徑、高共現的搭配對；負面評價則傾向以<strong>間接描述</strong>出現（「冷氣太強需帶外套」「螢幕看不清楚」），語句結構較長，搭配強度相對分散。此差異暗示：評論者描述正面經驗時用語精簡，描述負面經驗時傾向提供情境脈絡，此為輿情分析上重要的語意結構觀察。
+      </div>
+
+      <!-- 7.3 高中心性關鍵詞 -->
+      <h3 id="findings-centrality" style="margin-top:28px">7.3 高中心性（Centrality）之關鍵詞分析</h3>
+
+      <p>中心性指標揭示網絡中最具影響力的詞彙節點。本研究考察兩種中心性指標：</p>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr>
+              <th>排名</th>
+              <th colspan="2">臺北大巨蛋</th>
+              <th colspan="2">臺北小巨蛋</th>
+              <th colspan="2">高雄巨蛋</th>
+            </tr>
+            <tr>
+              <th></th><th>Degree</th><th>Betweenness</th>
+              <th>Degree</th><th>Betweenness</th>
+              <th>Degree</th><th>Betweenness</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>冷氣</td><td>冷氣</td><td>頒獎典禮</td><td>演唱會</td><td>方便</td><td>演唱會</td></tr>
+            <tr><td>2</td><td>大巨蛋</td><td>大巨蛋</td><td>音樂</td><td>音樂</td><td>演唱會</td><td>高雄巨蛋</td></tr>
+            <tr><td>3</td><td>捷運</td><td>球場</td><td>流行</td><td>頒獎典禮</td><td>高雄市</td><td>高雄市</td></tr>
+            <tr><td>4</td><td>演唱會</td><td>演唱會</td><td>演唱會</td><td>燈光</td><td>百貨</td><td>舉辦</td></tr>
+            <tr><td>5</td><td>交通</td><td>台灣</td><td>金曲</td><td>效果</td><td>活動</td><td>高雄</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 style="margin-top:18px">Degree 中心性解讀（連結數量：直接影響範圍）</h4>
+
+      <ul>
+        <li><strong>臺北大巨蛋</strong>：「<strong>冷氣</strong>」為 Degree 最高詞彙，同時連結正面（舒服）與負面（外套）評價詞，成為場館體驗的核心討論軸。「捷運」「交通」連結多個方向詞彙（國父紀念館、出口、便利），反映評論者高度關注抵達方式。</li>
+        <li><strong>臺北小巨蛋</strong>：「<strong>頒獎典禮</strong>」「<strong>音樂</strong>」「<strong>流行</strong>」構成核心三角，反映小巨蛋作為<strong>頒獎典禮場地</strong>的特殊定位（金曲獎、紅白藝能大賞等）。此為小巨蛋評論中獨有的主題特徵。</li>
+        <li><strong>高雄巨蛋</strong>：「<strong>方便</strong>」為 Degree 最高詞彙，連結交通、捷運、停車、百貨等多維面向，反映評論者最關注的是場館的<strong>周邊便利性</strong>與複合商場功能（漢神巨蛋百貨）。</li>
+      </ul>
+
+      <h4 style="margin-top:18px">Betweenness 中心性解讀（橋接角色：跨主題連結）</h4>
+
+      <ul>
+        <li>「<strong>演唱會</strong>」在三座場館中均名列 Betweenness 前四，為最重要的<strong>跨主題橋接詞</strong>——連結「演出體驗」群集與「場館設施」群集。</li>
+        <li>臺北大巨蛋中「<strong>冷氣</strong>」同時為 Degree 與 Betweenness 雙冠，顯示冷氣不僅是高頻討論主題，更是連結多個語意群集（設施評價、觀賽體驗、穿著建議）的核心樞紐。</li>
+        <li>高雄巨蛋中「<strong>舉辦</strong>」的 Betweenness 高於 Degree，說明此動詞雖然直接搭配詞不多，但橋接了「活動類型」（展覽、大型、各種）與「場館身份」（高雄巨蛋、高雄市）兩個群集。</li>
+      </ul>
+
+      <!-- 7.4 跨場館比較 -->
+      <h3 id="findings-compare" style="margin-top:28px">7.4 跨場館比較：網絡結構差異</h3>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>指標</th><th>臺北大巨蛋</th><th>臺北小巨蛋</th><th>高雄巨蛋</th><th>解讀</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:600">節點數</td><td>91</td><td>58</td><td>92</td><td>小巨蛋詞彙集中度高；大巨蛋與高雄巨蛋主題更分散</td></tr>
+            <tr><td style="font-weight:600">邊數</td><td>80</td><td>80</td><td>80</td><td>固定 top_n=80，三者搭配對數量一致</td></tr>
+            <tr><td style="font-weight:600">密度</td><td>0.0195</td><td>0.0484</td><td>0.0191</td><td>小巨蛋密度最高（×2.5），語意結構最緊密</td></tr>
+            <tr><td style="font-weight:600">群集係數</td><td>0.0604</td><td>0.1888</td><td>0.0569</td><td>小巨蛋群聚度最強（×3），主題間高度互聯</td></tr>
+            <tr><td style="font-weight:600">連通分量</td><td>22</td><td>18</td><td>24</td><td>高雄巨蛋碎片化最嚴重，反映主題分散且獨立</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0">
+        <div style="background:#e8f0fe;border-left:4px solid #1a73e8;border-radius:8px;padding:14px">
+          <div style="font-size:0.78rem;font-weight:700;color:#1a73e8;margin-bottom:8px">臺北大巨蛋</div>
+          <p style="font-size:0.82rem;color:#333"><strong>分散但設施導向</strong>：22 個連通分量，主題涵蓋冷氣、交通、停車、棒球、炸雞等多元面向。「冷氣」為核心樞紐——這是大巨蛋評論中最獨特的特徵，反映室內溫控對全室內場館體驗的決定性影響。</p>
+        </div>
+        <div style="background:#e6f4ea;border-left:4px solid #137333;border-radius:8px;padding:14px">
+          <div style="font-size:0.78rem;font-weight:700;color:#137333;margin-bottom:8px">臺北小巨蛋</div>
+          <p style="font-size:0.82rem;color:#333"><strong>集中且活動導向</strong>：密度與群集係數均為最高，評論高度聚焦於頒獎典禮與演唱會。「頒獎典禮–金曲–流行–音樂」形成小巨蛋獨有的核心語意群，反映其作為台灣音樂產業指標場地的定位。</p>
+        </div>
+        <div style="background:#fef3c7;border-left:4px solid #b45309;border-radius:8px;padding:14px">
+          <div style="font-size:0.78rem;font-weight:700;color:#b45309;margin-bottom:8px">高雄巨蛋</div>
+          <p style="font-size:0.82rem;color:#333"><strong>碎片化且便利性導向</strong>：24 個連通分量為三館最多，主題包括交通、百貨、建築結構（鋼骨鋼筋）、歷史（2008 動工）等異質面向。「方便」為核心樞紐，漢神百貨的商場功能為獨有特徵。</p>
+        </div>
+      </div>
+
+      <div class="callout green" style="margin-top:16px">
+        <strong>總結：</strong>三座巨蛋場館的語意網絡結構差異，精確反映了各場館的功能定位與使用者關注焦點：大巨蛋聚焦設施體驗（冷氣、座位、螢幕），小巨蛋聚焦演出活動（頒獎典禮、藝人），高雄巨蛋聚焦周邊便利性（交通、百貨、停車）。三者的共同主題為「交通可及性」與「演唱會體驗」，但各自的核心議題與網絡結構截然不同，顯示 Google Reviews 語料在場館輿情分析上具有良好的主題區辨能力。
+      </div>
+
+      <!-- 7.5 POS-based collocation 深度分析 -->
+      <h3 id="findings-pos" style="margin-top:28px">7.5 詞性導向搭配分析：以「冷氣」為例</h3>
+
+      <p>「冷氣」在臺北大巨蛋語意網絡中同時為 <strong>Degree 與 Betweenness 雙冠詞彙</strong>，連結設施評價、觀賽體驗、穿著建議等多個語意群集，最具分析價值。以下以詞性導向（POS-based）的搭配分析，系統性比較「冷氣」與名詞、動詞、形容詞的搭配差異。</p>
+
+      <h4 style="margin-top:18px">（一）形容詞搭配：評價極性的雙面性</h4>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
+        <div style="background:#e6f4ea;border-radius:10px;padding:16px 18px">
+          <div style="font-size:0.72rem;font-weight:700;color:#137333;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">正面形容詞（佔比約 75%）</div>
+          <div style="font-size:0.85rem">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+              <span style="background:#c8e6c9;padding:2px 10px;border-radius:12px;font-size:0.82rem">舒服 (30)</span>
+              <span style="background:#c8e6c9;padding:2px 10px;border-radius:12px;font-size:0.82rem">很棒 (19)</span>
+              <span style="background:#c8e6c9;padding:2px 10px;border-radius:12px;font-size:0.82rem">舒適 (18)</span>
+              <span style="background:#c8e6c9;padding:2px 10px;border-radius:12px;font-size:0.82rem">不錯 (16)</span>
+              <span style="background:#c8e6c9;padding:2px 10px;border-radius:12px;font-size:0.82rem">涼爽 (5)</span>
+            </div>
+            <p style="font-size:0.8rem;color:#555">以舒適感受為主軸，「舒服」(30次) 為最強搭配。</p>
+          </div>
+        </div>
+        <div style="background:#fff3f3;border-radius:10px;padding:16px 18px">
+          <div style="font-size:0.72rem;font-weight:700;color:#c62828;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">負面 / 警示形容詞（佔比約 25%）</div>
+          <div style="font-size:0.85rem">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+              <span style="background:#ffcdd2;padding:2px 10px;border-radius:12px;font-size:0.82rem">很冷 (4)</span>
+              <span style="background:#ffcdd2;padding:2px 10px;border-radius:12px;font-size:0.82rem">怕冷 (2)</span>
+            </div>
+            <p style="font-size:0.8rem;color:#555">出現次數低但語意指向明確：冷氣「過強」而非「不足」。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:8px">
+        <strong>語用觀察：</strong>有趣的是，即使搭配「很冷」「怕冷」等負面形容詞的評論，評論者的星等多為 4–5 星（如「冷氣很冷 讚」「唯一缺點：冷氣很冷，要記得帶薄外套」），顯示冷氣過強被視為<strong>可容忍的小瑕疵</strong>而非真正的不滿。形容詞搭配的表面極性與實際評價態度之間存在語用落差，僅靠詞彙共現無法完整捕捉。
+      </div>
+
+      <h4 style="margin-top:22px">（二）名詞搭配：語意場域的多維輻射</h4>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table>
+          <thead><tr><th>語意場域</th><th>名詞搭配</th><th>頻次</th><th>語意解讀</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="3" style="font-weight:600;vertical-align:top">場館與賽事</td>
+                <td>棒球</td><td>33</td><td rowspan="3">反映核心使用情境：在有冷氣的室內看棒球</td></tr>
+            <tr><td>大巨蛋</td><td>33</td></tr>
+            <tr><td>球場</td><td>31</td></tr>
+            <tr><td rowspan="2" style="font-weight:600;vertical-align:top">穿著建議</td>
+                <td>外套</td><td>23</td><td rowspan="2">「外套」為冷氣獨有的高頻名詞搭配，其他設施詞彙不會出現此搭配</td></tr>
+            <tr><td>建議</td><td>16</td></tr>
+            <tr><td rowspan="2" style="font-weight:600;vertical-align:top">設施連結</td>
+                <td>座位</td><td>11</td><td rowspan="2">冷氣作為樞紐，串連至其他設施的評價語境</td></tr>
+            <tr><td>廁所</td><td>10</td></tr>
+            <tr><td style="font-weight:600">活動類型</td>
+                <td>演唱會</td><td>14</td><td>冷氣體驗不限於棒球，亦涵蓋演唱會場景</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout" style="margin-top:8px">
+        <strong>語意解讀：</strong>「冷氣」的名詞搭配呈現<strong>向心輻射結構</strong>——以場館賽事為核心、穿著建議為附帶、其他設施為橋接。「外套」(23次) 是最獨特的搭配發現：評論者將冷氣體驗轉化為<strong>行為建議</strong>（「建議帶外套」），此語用模式在其他設施詞彙（座位、廁所、螢幕）中未曾出現，揭示冷氣作為體感型設施詞彙的獨特語言使用行為。
+      </div>
+
+      <h4 style="margin-top:22px">（三）動詞搭配：體驗行為的語意腳本</h4>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0">
+        <div style="background:#e8f0fe;border-radius:10px;padding:14px">
+          <div style="font-size:0.72rem;font-weight:700;color:#1a73e8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">體驗動詞</div>
+          <div style="font-size:0.85rem">
+            <span style="font-weight:600">吹著</span> (11)、<span style="font-weight:600">享受</span> (7)、<span style="font-weight:600">感受</span> (6)、<span style="font-weight:600">坐在</span> (4)
+          </div>
+          <p style="font-size:0.78rem;color:#666;margin-top:6px">描繪「身體感知」的動作——吹著冷氣、享受涼意、坐在座位上感受</p>
+        </div>
+        <div style="background:#e6f4ea;border-radius:10px;padding:14px">
+          <div style="font-size:0.72rem;font-weight:700;color:#137333;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">觀賽動詞</div>
+          <div style="font-size:0.85rem">
+            <span style="font-weight:600">看球賽</span> (14)、<span style="font-weight:600">比賽</span> (9)、<span style="font-weight:600">進場</span> (4)、<span style="font-weight:600">散場</span> (4)
+          </div>
+          <p style="font-size:0.78rem;color:#666;margin-top:6px">構成完整的觀賽腳本：進場 → 看球賽 → 散場</p>
+        </div>
+        <div style="background:#fef3c7;border-radius:10px;padding:14px">
+          <div style="font-size:0.72rem;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">環境免除動詞</div>
+          <div style="font-size:0.85rem">
+            <span style="font-weight:600">下雨</span> (11)、<span style="font-weight:600">不用</span> (9)、<span style="font-weight:600">擔心</span> (8)
+          </div>
+          <p style="font-size:0.78rem;color:#666;margin-top:6px">「不用擔心下雨」——冷氣作為「室內」的隱喻替代</p>
+        </div>
+      </div>
+
+      <div class="callout amber" style="margin-top:8px">
+        <strong>關鍵發現——語意腳本（Semantic Script）：</strong>動詞搭配揭示了一個完整的<strong>體驗敘事結構</strong>：<br><br>
+        <div style="background:#fff;border-radius:8px;padding:14px 18px;margin:8px 0;font-size:0.85rem;font-family:monospace;text-align:center;letter-spacing:0.5px">
+          <span style="color:#b45309">【免除擔憂】</span> 不用擔心下雨 →
+          <span style="color:#137333">【進入場館】</span> 進場 →
+          <span style="color:#1a73e8">【身體感知】</span> 吹著冷氣、坐在座位 →
+          <span style="color:#137333">【觀賽體驗】</span> 看球賽、享受 →
+          <span style="color:#137333">【離場】</span> 散場
+        </div>
+        這組動詞搭配共同建構了一個「室內場館體驗」的語意腳本（script），其中「冷氣」不僅是一項設施，更是<strong>整個室內體驗的隱喻錨點</strong>——評論者以「有冷氣」作為室內場館相對於室外場館的核心優勢標誌，由此延伸出「不怕下雨」「不用擔心天氣」等免除語境。此發現與 Schank & Abelson (1977) 的腳本理論一致：消費者評論中的詞彙共現，反映了結構化的事件知識（event knowledge）。
+      </div>
+
+      <h4 style="margin-top:22px">（四）三詞性搭配的綜合比較</h4>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table>
+          <thead><tr><th>詞性</th><th>搭配功能</th><th>核心語意</th><th>語用特徵</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600">形容詞 (a)</td>
+              <td>評價賦予</td>
+              <td>舒適感受的正面確認（75%正面）；過強的輕微警示（25%）</td>
+              <td>即使負面形容詞也常出現在高星等評論，顯示<strong>語用寬容</strong></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">名詞 (n)</td>
+              <td>場域定位</td>
+              <td>場館設施的空間關聯與使用情境</td>
+              <td>「外套」為獨特的<strong>行為建議名詞</strong>，僅出現在冷氣搭配中</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">動詞 (v)</td>
+              <td>體驗敘事</td>
+              <td>從進場到散場的完整事件腳本</td>
+              <td>「吹著」為體驗動詞中心，建構<strong>身體感知</strong>的敘事視角</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout green" style="margin-top:12px">
+        <strong>語意與語用小結：</strong>「冷氣」在臺北大巨蛋評論中扮演<strong>三重語意角色</strong>：（1）作為設施被評價（形容詞搭配）；（2）作為空間標誌輻射至其他設施與活動（名詞搭配）；（3）作為體驗敘事的起點，建構完整的觀賽腳本（動詞搭配）。此三層搭配結構共同揭示，「冷氣」之所以成為大巨蛋語意網絡的核心樞紐，不僅因為高頻出現，更因為它承載了<strong>從環境條件（室內溫控）→ 身體感知（舒服 / 很冷）→ 行為反應（帶外套）→ 整體評價（很棒）</strong>的完整語意鏈。
+      </div>
+
+      <div class="callout" style="margin-top:12px">
+        <strong>場域背景補充：</strong>「冷氣」出現頻率極高的根本原因在於，臺北大巨蛋是<strong>台灣目前唯一擁有全場域空調系統的室內棒球場</strong>。傳統球場（如新莊棒球場、台中洲際棒球場等）為露天或半開放式設計，夏季觀賽環境炎熱，僅 VIP 包廂或少數室內休息區設有空調。大巨蛋的全場域冷氣因此成為與既有球場<strong>最具差異性的硬體特徵</strong>，評論者以此作為描述觀賽體驗的首要參照點。動詞搭配中「不用擔心下雨」「不怕風吹日曬」等「環境免除」語境，正是評論者將大巨蛋與傳統露天球場<strong>隱性對比</strong>的語言表現。這也解釋了為何「冷氣」不僅是高頻詞，更是跨群集的核心樞紐——它承載的不只是單一設施評價，而是「室內 vs. 室外」這一場館類型差異的<strong>語意代理詞</strong>（semantic proxy）。
+      </div>
+
+    </div>
+
+    <!-- References -->
+    <div class="section" id="references">
+      <h2>參考文獻</h2>
+      <div class="references">
+        <p>Church, K. W., & Hanks, P. (1990). Word association norms, mutual information, and lexicography. <em>Computational Linguistics</em>, 16(1), 22–29.</p>
+        <p>Collins, A. M., & Quillian, M. R. (1969). Retrieval time from semantic memory. <em>Journal of Verbal Learning and Verbal Behavior</em>, 8(2), 240–247.</p>
+        <p>Dunning, T. (1993). Accurate methods for the statistics of surprise and coincidence. <em>Computational Linguistics</em>, 19(1), 61–74.</p>
+        <p>Evert, S. (2008). Corpora and collocations. In A. Lüdeling & M. Kytö (Eds.), <em>Corpus Linguistics: An International Handbook</em>. de Gruyter.</p>
+        <p>Firth, J. R. (1957). A synopsis of linguistic theory 1930–1955. In <em>Studies in Linguistic Analysis</em> (pp. 1–32). Blackwell.</p>
+        <p>Harris, Z. S. (1954). Distributional structure. <em>Word</em>, 10(2–3), 146–162.</p>
+        <p>Levy, O., & Goldberg, Y. (2014). Neural word embedding as implicit matrix factorization. <em>Advances in Neural Information Processing Systems</em>, 27.</p>
+        <p>Manning, C. D., & Schütze, H. (1999). <em>Foundations of Statistical Natural Language Processing</em>. MIT Press.</p>
+        <p>Schank, R. C., & Abelson, R. P. (1977). <em>Scripts, Plans, Goals, and Understanding</em>. Lawrence Erlbaum Associates.</p>
+        <p>Sinclair, J. (1991). <em>Corpus, Concordance, Collocation</em>. Oxford University Press.</p>
+        <p>Stefanowitsch, A. (2020). <em>Corpus Linguistics: A Guide to the Methodology</em>. Language Science Press.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

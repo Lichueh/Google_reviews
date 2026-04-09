@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>評論管控系統</title>
+  <link rel="stylesheet" href="/static/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+<header>
+  <h1>📊 評論管控系統</h1>
+  <select id="place-select">
+    <option value="">— 選擇地點 —</option>
+  </select>
+</header>
+
+<main>
+  <div id="empty-state" class="empty-state">
+    <p>請從上方選擇一個地點</p>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <!-- Place header -->
+    <div class="place-header">
+      <span id="place-title"></span>
+      <a id="place-link" href="#" target="_blank" style="font-size:0.8rem;color:#1a73e8;margin-left:10px;display:none">在 Google Maps 查看 ↗</a>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <label style="font-size:0.8rem;color:#555;font-weight:400">商家類型：</label>
+        <select id="type-select" style="font-size:0.82rem;padding:4px 8px;border:1px solid #dadce0;border-radius:6px">
+          <option value="general">通用</option>
+          <option value="restaurant">餐廳／飲食</option>
+          <option value="hospital">醫院／診所</option>
+          <option value="department_store">百貨／零售</option>
+        </select>
+        <span id="place-updated" style="font-size:0.8rem;color:#888"></span>
+      </span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card good">
+        <div class="label">評論總數</div>
+        <div class="value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card good">
+        <div class="label">平均評分</div>
+        <div class="value" id="stat-avg">—</div>
+      </div>
+      <div class="stat-card alert">
+        <div class="label">⚠ 警訊評論</div>
+        <div class="value" id="stat-alerts">—</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="label">💬 需要回應</div>
+        <div class="value" id="stat-needs">—</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card">
+      <h2>評論數量時間分佈</h2>
+      <canvas id="time-chart" height="80"></canvas>
+    </div>
+
+    <!-- Review list -->
+    <div class="filter-tabs">
+      <button class="tab-btn active" data-filter="all">全部</button>
+      <button class="tab-btn" data-filter="needs_response">需要回應</button>
+      <button class="tab-btn" data-filter="alert">警訊</button>
+    </div>
+
+    <div id="review-list"></div>
+  </div>
+</main>
+
+<script>
+const API = "";
+let chart = null;
+let allReviews = [];
+let currentFilter = "all";
+
+// ── Load place list ─────────────────────────────────────────
+async function loadPlaceList() {
+  const res = await fetch(`${API}/api/places`);
+  const places = await res.json();
+  const sel = document.getElementById("place-select");
+  places.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.place_name;
+    opt.textContent = `${p.place_name}  （${p.total_reviews} 則評論）`;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Load & render a place ───────────────────────────────────
+async function loadPlace(placeName) {
+  const res = await fetch(`${API}/api/places/${encodeURIComponent(placeName)}`);
+  const data = await res.json();
+
+  document.getElementById("empty-state").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+
+  // Place header
+  document.getElementById("place-title").textContent = data.place_name;
+  const link = document.getElementById("place-link");
+  if (data.place_url) {
+    link.href = data.place_url;
+    link.style.display = "inline";
+  }
+  const updated = data.scraped_at ? data.scraped_at.replace("T", " ").slice(0, 16) : "";
+  document.getElementById("place-updated").textContent = updated ? `最後更新：${updated}` : "";
+  document.getElementById("type-select").value = data.place_type || "general";
+
+  // Stats
+  document.getElementById("stat-total").textContent = data.total_reviews;
+  document.getElementById("stat-avg").textContent = (data.avg_rating || "—") + " ★";
+  document.getElementById("stat-alerts").textContent = data.alert_count;
+  document.getElementById("stat-needs").textContent = data.needs_response_count;
+
+  // Chart
+  renderChart(data.time_distribution);
+
+  // Reviews
+  allReviews = data.reviews;
+  renderReviews(currentFilter);
+}
+
+// ── Chart ───────────────────────────────────────────────────
+function renderChart(dist) {
+  if (chart) chart.destroy();
+  const ctx = document.getElementById("time-chart").getContext("2d");
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: dist.labels,
+      datasets: [{
+        label: "評論數",
+        data: dist.data,
+        borderColor: "#1a73e8",
+        backgroundColor: "rgba(26,115,232,.08)",
+        tension: 0.3,
+        fill: true,
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+// ── Review rendering ────────────────────────────────────────
+function starsHtml(n) {
+  if (!n) return "—";
+  return "★".repeat(n) + "☆".repeat(5 - n);
+}
+
+function renderReviews(filter) {
+  const list = document.getElementById("review-list");
+  const filtered = allReviews.filter(r => {
+    if (filter === "alert")          return r.analysis.is_alert;
+    if (filter === "needs_response") return r.analysis.needs_response;
+    return true;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><p>沒有符合條件的評論</p></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((r, i) => {
+    const a = r.analysis;
+    const cardClass = a.is_alert ? "alert" : a.needs_response ? "warn" : "positive";
+    const sentimentTag = `<span class="tag ${a.sentiment}">${
+      {positive:"正面",neutral:"中立",negative:"負面"}[a.sentiment]
+    }</span>`;
+    const alertTag  = a.is_alert ? `<span class="tag alert">⚠ 警訊</span>` : "";
+    const needsTag  = a.needs_response ? `<span class="tag needs-response">💬 需回應</span>` : "";
+    const respBtn   = a.suggested_response
+      ? `<button class="response-toggle" onclick="toggleResponse(${i})">▶ 查看建議回覆</button>
+         <div class="response-box" id="resp-${i}">${escHtml(a.suggested_response)}</div>`
+      : "";
+
+    return `
+    <div class="review-card ${cardClass}">
+      <div class="review-header">
+        <span class="reviewer-name">${escHtml(r.reviewer_name || "匿名")}</span>
+        <span class="stars">${starsHtml(r.rating)}</span>
+        ${sentimentTag} ${alertTag} ${needsTag}
+        <span class="review-date">${r.date || ""}</span>
+      </div>
+      ${r.text ? `<div class="review-text">${escHtml(r.text)}</div>` : ""}
+      ${respBtn}
+    </div>`;
+  }).join("");
+}
+
+function toggleResponse(i) {
+  const box = document.getElementById(`resp-${i}`);
+  const btn = box.previousElementSibling;
+  const visible = box.style.display === "block";
+  box.style.display = visible ? "none" : "block";
+  btn.textContent = (visible ? "▶" : "▼") + " 查看建議回覆";
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── Events ──────────────────────────────────────────────────
+document.getElementById("place-select").addEventListener("change", e => {
+  if (e.target.value) loadPlace(e.target.value);
+});
+
+document.getElementById("type-select").addEventListener("change", async e => {
+  const placeName = document.getElementById("place-select").value;
+  if (!placeName) return;
+  await fetch(`${API}/api/places/${encodeURIComponent(placeName)}/type`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({place_type: e.target.value}),
+  });
+  loadPlace(placeName);  // re-analyse with new keywords
+});
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    renderReviews(currentFilter);
+  });
+});
+
+loadPlaceList();
+</script>
+</body>
+</html>

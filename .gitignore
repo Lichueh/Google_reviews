@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+reviews.db
+reviews.db-shm
+reviews.db-wal
+downloaded_files/

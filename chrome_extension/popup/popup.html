@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Reviews Scraper</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Reviews Scraper</h1>
+      <span id="backend-status" class="badge badge-unknown">Checking...</span>
+    </header>
+
+    <!-- Auto-detected place banner -->
+    <div id="detected-place" class="detected-banner hidden">
+      <span class="pin-icon">📍</span>
+      <span id="detected-place-name"></span>
+    </div>
+
+    <!-- Search form -->
+    <div class="form-group">
+      <label for="place-input">Place name or Google Maps URL</label>
+      <input
+        type="text"
+        id="place-input"
+        placeholder="e.g. Taipei 101 or paste a Maps URL"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="max-reviews">Max reviews（0 = 全部爬取）</label>
+      <input
+        type="number"
+        id="max-reviews"
+        value="0"
+        min="0"
+      />
+    </div>
+
+    <div class="form-group form-group--inline">
+      <input type="checkbox" id="update-mode" />
+      <label for="update-mode">只抓新評論（增量更新）</label>
+    </div>
+
+    <button id="scrape-btn" class="btn-primary" disabled>Scrape Reviews</button>
+
+    <!-- Progress section -->
+    <div id="progress-section" class="hidden">
+      <div class="progress-label">
+        <span id="progress-text">Initialising...</span>
+        <span id="progress-count"></span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Result section -->
+    <div id="result-section" class="hidden">
+      <p id="result-summary"></p>
+      <button id="download-btn" class="btn-secondary">Download JSON</button>
+    </div>
+
+    <!-- Error section -->
+    <div id="error-section" class="hidden">
+      <p id="error-msg" class="error-text"></p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

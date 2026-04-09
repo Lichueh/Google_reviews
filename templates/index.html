@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Reviews 分析平台</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f6fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1a73e8;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 48px;
+    }
+    .cards {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 36px 32px 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      width: 300px;
+      text-align: left;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow .2s, transform .2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      box-shadow: 0 6px 20px rgba(26,115,232,.18);
+      transform: translateY(-3px);
+    }
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 14px;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 10px;
+    }
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+      flex: 1;
+    }
+    .card li {
+      font-size: 0.88rem;
+      color: #555;
+      padding: 3px 0;
+    }
+    .card li::before {
+      content: "\2022";
+      color: #1a73e8;
+      margin-right: 8px;
+    }
+    .card-enter {
+      font-size: 0.9rem;
+      color: #1a73e8;
+      font-weight: 500;
+    }
+    @media (max-width: 680px) {
+      .cards { flex-direction: column; align-items: center; }
+      .card { width: 90%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Google Reviews 分析平台</h1>
+    <p class="subtitle">評論管控與輿情分析整合系統</p>
+    <div class="cards">
+      <a class="card" href="/dashboard">
+        <div class="card-icon">📊</div>
+        <h2>評論管控系統</h2>
+        <ul>
+          <li>地點評分統計</li>
+          <li>警訊評論篩選</li>
+          <li>建議回覆生成</li>
+          <li>時間趨勢圖表</li>
+        </ul>
+        <span class="card-enter">進入 →</span>
+      </a>
+      <a class="card" href="/yuqing">
+        <div class="card-icon">🔍</div>
+        <h2>輿情分析系統</h2>
+        <ul>
+          <li>搭配詞關聯分析</li>
+          <li>語意網絡視覺化</li>
+          <li>KWIC 語境搜尋</li>
+          <li>跨場館比較</li>
+        </ul>
+        <span class="card-enter">進入 →</span>
+      </a>
+      <a class="card" href="/methodology">
+        <div class="card-icon">📖</div>
+        <h2>方法論說明</h2>
+        <ul>
+          <li>斷詞工具與自訂詞典</li>
+          <li>Collocation 定義與操作化</li>
+          <li>關聯指標統計意涵</li>
+          <li>窗口與閾值設定理據</li>
+        </ul>
+        <span class="card-enter">查看 →</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

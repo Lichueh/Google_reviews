@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Google Reviews Scraper",
+  "version": "1.0.0",
+  "description": "Scrape Google Maps reviews via a local Python backend.",
+
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+
+  "host_permissions": [
+    "http://localhost:5002/*",
+    "https://www.google.com/maps/*"
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background/service_worker.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/maps/*"],
+      "js": ["content_scripts/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}
